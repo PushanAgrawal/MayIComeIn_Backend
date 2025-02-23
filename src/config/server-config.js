@@ -7,5 +7,6 @@ require("dotenv").config({
 module.exports = {
   MONGOURI: process.env.MONGOURI,
   PORT: process.env.PORT,
+  JWT_SECRET:process.env.JWT_SECRET,
 
 };
