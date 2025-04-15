@@ -15,9 +15,16 @@ router.post("/registerStudent",
         body('password').isString().notEmpty().withMessage('Password is required'),],
     loginAuth, 
     async function name(req,res) {
-  if(req.user.verified=="true"){
+      console.log(req.user.verified)
+  if(req.user.verified!=true){
     return res.status(401).json({message:"Email is not verified"})
   }
+  const finduser =await Student.findOne({email:req.user.email});
+  
+  if(finduser){
+    return res.status(400).json({message:"user already exists"})
+  }
+
  
   const salt = await bcrypt.genSalt(10);
   const secPass = await bcrypt.hash(req.body.password, salt);
@@ -69,11 +76,30 @@ router.post('/studentLogin', async (req, res) => {
         { expiresIn: '12h' }
       );
   
-      res.json({ message: 'Login successful', token });
+      return  res.json({ message: 'Login successful', token });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Server error' });
+     return res.status(500).json({ message: 'Server error' });
     }
   });
+
+
+  // Get Student Profile
+router.get("/student/profile", loginAuth, async (req, res) => {
+  try {
+    const student = await Student.findOne({ email: req.user.email }).select("-password"); // Exclude password
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    return res.json({ student });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+
   
 module.exports = router;

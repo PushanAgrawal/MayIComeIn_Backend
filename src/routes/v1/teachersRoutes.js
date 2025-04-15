@@ -51,10 +51,10 @@ router.post("/addTeacher",
             const teacher = new Teacher({ firstName, lastName, email, department, roomNumber });
             await teacher.save();
         
-            res.status(201).json({ message: 'Teacher added successfully', teacher });
+            return  res.status(201).json({ message: 'Teacher added successfully', teacher });
           } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Server error' });
+            return  res.status(500).json({ message: 'Server error' });
           }
         
 

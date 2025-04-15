@@ -29,8 +29,8 @@ const sendOtp = async ({ email, otp }, res) => {
       from: "pushanag@gmail.com",
       // sender address
       to: email, // list of receivers
-      subject: "Welcome to Gyrate", // Subject line
-      html: `Hello, Welcome to Gyrate. your otp is ${otp}`, // html body
+      subject: "Welcome to Thpapar teacher connect", // Subject line
+      html: `Hello, Welcome to Thpapar teacher connect. your otp is ${otp}`, // html body
     });
     console.log(info);
     console.log("Email sent: ", info.messageId);
@@ -48,7 +48,7 @@ const sendOtp = async ({ email, otp }, res) => {
   
   }
   catch(e){
-    console.error("Error sending email: ", error);
+    console.error("Error sending email: ", e);
     return false; // 
   }
   };

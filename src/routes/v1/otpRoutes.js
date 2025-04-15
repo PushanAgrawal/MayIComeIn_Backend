@@ -67,6 +67,7 @@ router.post(
           },
         };
         const authtoken = jwt.sign(data, JWT_SECRET);
+       
        return res.status(200).json({ authtoken: authtoken });
       }
       return res.status(400);
