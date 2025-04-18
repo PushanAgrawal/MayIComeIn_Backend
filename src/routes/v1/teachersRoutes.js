@@ -9,23 +9,40 @@ const Teacher = require("../../models/teachers")
 const {JWT_SECRET} = require("../../config/server-config")
 
 
-router.get("/getTeachers",
-    loginAuth, 
-    async function name(req,res) {
+
+// router.get("/getTeachers",
+//     loginAuth, 
+//     async function name(req,res) {
 
  
-  try{
-    const allteachers =await Teacher.find({});
+//   try{
+//     const allteachers =await Teacher.find({});
 
-    return res.status(200).json({tachers:allteachers})
-  }
-  catch(e){
-    console.log(e)
-    return res.status(500).json({message:"Internal server error"})
-  }
+//     return res.status(200).json({tachers:allteachers})
+//   }
+//   catch(e){
+//     console.log(e)
+//     return res.status(500).json({message:"Internal server error"})
+//   }
   
 
 
+// });
+
+router.get("/getTeachers",
+  // loginAuth, 
+  async function name(req,res) {
+    const department = req.query.department;
+    
+    try{
+      const query = department ? { department: department } : {};
+      const allteachers = await Teacher.find(query);
+      return res.status(200).json({teachers:allteachers})
+    }
+    catch(e){
+      console.log(e)
+      return res.status(500).json({message:"Internal server error"})
+    }
 });
 
 router.post("/addTeacher",
