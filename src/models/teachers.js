@@ -13,6 +13,8 @@ const teacherSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
+
 const Teacher = new mongoose.model('teacher', teacherSchema);
+teacherSchema.index({ firstName: 'text', lastName: 'text' });
 
 module.exports = Teacher;
