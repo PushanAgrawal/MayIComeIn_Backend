@@ -16,10 +16,26 @@ const teacherSchema = new mongoose.Schema(
       required: true,
     },
     roomNumber: { type: String, required: true },
-    academia: {
-      specialization: [{ type: String, required: true }],
-      papers: [{ type: String, required: true }],
+
+    specialization: [{ type: String, required: true }],
+    papers: {
+      type: [
+        {
+          title: {
+            type: String,
+
+            default: null,
+          },
+          journal: {
+            type: String,
+
+            default: null,
+          },
+        },
+      ],
+      required: true,
     },
+
     slots: {
       type: [
         {
@@ -44,8 +60,10 @@ const teacherSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+teacherSchema.index({ "papers.title": "text", "papers.journal": "text" });
+teacherSchema.index({ department: 1, specialization: 1 });
+teacherSchema.index({ department: 1, firstName: 1, lastName: 1 });
 const Teacher = mongoose.model("teacher", teacherSchema);
 
-teacherSchema.index({ firstName: 'text', lastName: 'text' });
 
 module.exports = Teacher;

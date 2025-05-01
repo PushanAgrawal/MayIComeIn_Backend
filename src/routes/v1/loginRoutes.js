@@ -103,6 +103,8 @@ router.get("/student/profile", loginAuth, async (req, res) => {
   }
 });
 
+
+
 router.post("/teacherLogin", async (req, res) => {
   const { email, password } = req.body;
 

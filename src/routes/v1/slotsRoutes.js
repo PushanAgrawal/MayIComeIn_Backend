@@ -35,7 +35,7 @@ router.post("/bookSlots",loginAuth,
         var id = req.user.userId
         var slotId = req.body.slotId
         var teacherId = req.body.teacherId
-        console.log(req.slotId)
+        // console.log(req.slotId)
             // Check if email already exists
             const existingTeacher = await Student.findOne({ _id:id });
             if (!existingTeacher) {
@@ -44,9 +44,9 @@ router.post("/bookSlots",loginAuth,
             // console.log(existingTeacher)
             const result = await Teacher.aggregate([
                 // Match the teacher with this slot
-                { $match: { _id: new mongoose.Types.ObjectId(teacherID) } },
+                { $match: { _id: new mongoose.Types.ObjectId(teacherId) } },
                 { $unwind: "$slots" },
-                { $match: { "slots._id": new mongoose.Types.ObjectId(slotID) } },
+                { $match: { "slots._id": new mongoose.Types.ObjectId(slotId) } },
                 {
                   $facet: {
                     slotToBook: [
@@ -64,7 +64,7 @@ router.post("/bookSlots",loginAuth,
                                 $expr: {
                                   $and: [
                                     { $eq: ["$slots.time", "$$slotTime"] },
-                                    { $eq: ["$slots.bookedBy", new mongoose.Types.ObjectId(studentID)] }
+                                    { $eq: ["$slots.bookedBy", new mongoose.Types.ObjectId(id)] }
                                   ]
                                 }
                               }
@@ -78,7 +78,7 @@ router.post("/bookSlots",loginAuth,
                   }
                 }
               ]);
-if(result[0].conflict.length > 0 ){ return  res.status(400).json({ message: 'alreay booked slot for same timing' });}              
+if(result[0].conflict?.length > 0 ){ return  res.status(400).json({ message: 'alreay booked slot for same timing' });}              
     
             const update = await Teacher.updateOne(
                 { _id: teacherId, "slots._id": slotId },
@@ -131,33 +131,45 @@ router.get("/retriveSlots",loginAuth,
 
 })
 
-router.post("/addSlot",loginAuth,
-    async function(req,res){
-     
+router.post("/addSlot", loginAuth, async function (req, res) {
+  try {
+    var id = req.user.userId;
+    // Check if email already exists
+    const existingTeacher = await Teacher.findOne({ _id: id });
+    if (!existingTeacher) {
+      return res.status(400).json({ message: "NO such teacher" });
+    }
+    console.log(existingTeacher);
+    var time = new Date(req.body.time);
+    var data = {
+      time: time,
+    };
+    var update = await Teacher.updateOne(
+      { _id: id, "slots.time": { $ne: data.time } },
+      { $push: { slots: data } }
+    );
+    console.log(update);
 
-        try {
-        var id = req.user.userId
-            // Check if email already exists
-            const existingTeacher = await Teacher.findOne({ _id:id });
-            if (!existingTeacher) {
-              return res.status(400).json({ message: 'NO such teacher' });
-            }
-            console.log(existingTeacher)
-            var time =  new Date(req.body.time)
-            var data = {
-                time:time
-            }
-            var update = await Teacher.updateOne({_id:id, "slots.time": { $ne: data.time } }, {$push:{slots:data}})
-            console.log(update)
-         
+    return res.status(201).json({ message: "slot  added successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+// Updating slot timing
+router.put("/updateSlot/:id", async (req, res) => {
+  try {
+    const { time } = req.body;
+    const slot = await Slot.findByIdAndUpdate(
+      req.params.id,
+      { time },
+      { new: true }
+    );
+    res.status(200).json(slot);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-            return  res.status(201).json({ message: 'slot  added successfully' });
-          } catch (error) {
-            console.error(error);
-            return  res.status(500).json({ message: 'Server error' });
-          }
-        
-
-})
 
 module.exports = router
